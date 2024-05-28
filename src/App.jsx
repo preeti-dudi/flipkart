@@ -10,6 +10,7 @@ import HeroHome from './HeroHome';
 import Product from './products';
 
 function App() {
+
   return (
     <BrowserRouter>
       <Navbar /> 

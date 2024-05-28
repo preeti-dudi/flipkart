@@ -1,18 +1,21 @@
 // src/components/SignUp.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import APIService from '../utils/services';
 import { toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css';
+import { useDispatch } from 'react-redux';
+import { login } from '../redux/actions';
 
 
 const Login = () => {
     
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    
+    const [username, setUsername] = useState('johnd');
+    const [password, setPassword] = useState('m38rmF$');
   
-    
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
       
 
     const handleSubmit = async (e) => {
@@ -34,18 +37,16 @@ const Login = () => {
         }
 
         const data = {
-            username: email,
+            username: username,
             password: password
         };
 
         try {
             const Api = new APIService(); // Creating an instance of APIService
             const result = await Api.post('auth/login', false, data); // Sending login request
-            if (result.token) {
-                await localStorage.setItem('token', result.token); // Storing access token in local storage
-             // Storing refresh token in local storage
-                // setIsLoggedIn(true); // Update isLoggedIn state to true after successful login
-
+            if (result.token) { 
+              // Storing token in local storage & Update isAUthenticated in redux to true after successful login
+                dispatch(login(result.token));
                 toast.success('User logged in successfully', {
                     position: "bottom-right",
                     autoClose: 5000,
@@ -56,7 +57,7 @@ const Login = () => {
                     progress: undefined,
                     theme: "dark",
                 });
-                // navigate('/'); // Redirect to home page
+                navigate('/'); // Redirect to home page
             } else {
                 toast.error('User credential is not correct1', {
                     position: "bottom-right",
@@ -99,12 +100,13 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="flex flex-col  space-y-4">
             <div className="mb-4">
             <h2 className="text-2xl tracking-wider text-left font-semibold mb-4 ">Login</h2>
-              <label htmlFor="mobileNumber" className="block text-sm text-left font-semibold text-gray-600">Enter your Email</label>
+              <label htmlFor="mobileNumber" className="block text-sm text-left font-semibold text-gray-600">Enter your username</label>
               <input
                 type="text"
                 id="mobileNumber"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder='johnd'
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="mt-1 p-2 block   w-full border-red-600'} border-b-2 border-x-0  border-t-0"
               />
              
@@ -114,6 +116,7 @@ const Login = () => {
               <input
                 type="text"
                 id="mobileNumber"
+                placeholder='m38rmF$'
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 p-2 block   w-full border-red-600'} border-b-2 border-x-0  border-t-0"

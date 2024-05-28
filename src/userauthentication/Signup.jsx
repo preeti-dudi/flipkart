@@ -32,7 +32,7 @@ const SignUp = () => {
 
     try {
       const Api = new APIService();
-      await Api.post('users/', false, data);
+      await Api.get('users/1', false, data);
 
       toast.success('User registration successful', {
         position: "bottom-right",

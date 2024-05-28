@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import PriceFilter from './pricefilter';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItemToCart, removeItemFromCart } from './redux/actions';
+
+
 
 const ProductModal = ({ product, onClose }) => {
+
   if (!product) return null;
+
+  const cart = useSelector(state => state.cart);
+  const dispatch = useDispatch();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -12,9 +20,18 @@ const ProductModal = ({ product, onClose }) => {
         <h3 className="text-lg font-bold mb-2">{product.title}</h3>
         <p className="text-md mb-2">{product.description}</p>
         <p className="text-md font-bold mb-2">Price: ${product.price}</p>
-        <button className="hover:bg-black bg-[#35383b] text-white font-serif py-1 px-2 ml-2 mt-4 rounded-xl">
-                      Add to Cart
-                    </button>
+
+        {
+          product.id in cart ?
+            <button className="hover:bg-black bg-[#35383b] text-white font-serif py-1 px-2 ml-2 mt-4 rounded-xl" onClick={() => handleRemoveFromCart(product.id)}>
+              Remove Item
+            </button>
+            :
+            <button className="hover:bg-black bg-[#35383b] text-white font-serif py-1 px-2 ml-2 mt-4 rounded-xl" onClick={() => handleAddToCart(product)}>
+              Add to Cart
+            </button>
+
+        }
       </div>
     </div>
   );
@@ -29,6 +46,9 @@ function Product() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const cart = useSelector(state => state.cart);
+  const dispatch = useDispatch();
 
   const fetchProducts = async (category = null, title = "") => {
     try {
@@ -75,7 +95,7 @@ function Product() {
   }, []);
 
   const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
+    setSelectedCategory((prevCategory) => prevCategory === category ? null : category);
   };
 
   const handleSearch = (title) => {
@@ -100,6 +120,14 @@ function Product() {
     setSelectedProduct(null);
   };
 
+  const handleAddToCart = (product) => {
+    dispatch(addItemToCart(product));
+  }
+
+  const handleRemoveFromCart = (productId) => {
+    dispatch(removeItemFromCart(productId));
+  }
+
   return (
     <div className="min-h-screen flex flex-col mt-6">
       <div className="flex-1 md:flex m-4">
@@ -112,7 +140,10 @@ function Product() {
                   <div key={index} className="w-full">
                     <div className="p-4">
                       <p
-                        className="text-lg font-bold mb-2 cursor-pointer"
+                        className={category === selectedCategory ?
+                          "text-lg font-bold cursor-pointer border bg-[#526b7d] text-white p-4"
+                          : "text-lg font-bold mb-2 cursor-pointer"
+                        }
                         onClick={() => handleCategoryClick(category)}
                       >
                         {category}
@@ -141,9 +172,17 @@ function Product() {
                   <h3 className="text-sm font-cambria text-black mb-2">{product.title}</h3>
                   <p className="text-md font-bold text-black mb-2">
                     Price: ${product.price}
-                    <button className="hover:bg-black bg-[#35383b] text-white font-serif py-1 px-2 ml-2 mt-4 rounded-xl">
-                      Add to Cart
-                    </button>
+                    {
+                      product.id in cart ?
+                        <button className="hover:bg-black bg-[#35383b] text-white font-serif py-1 px-2 ml-2 mt-4 rounded-xl" onClick={() => handleRemoveFromCart(product.id)}>
+                          Remove Item
+                        </button>
+                        :
+                        <button className="hover:bg-black bg-[#35383b] text-white font-serif py-1 px-2 ml-2 mt-4 rounded-xl" onClick={() => handleAddToCart(product)}>
+                          Add to Cart
+                        </button>
+
+                    }
                   </p>
                 </div>
               </div>
